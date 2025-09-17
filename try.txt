@@ -1,0 +1,6 @@
+git init
+git add README.md
+git commit -m "Initialisation du projet"
+git branch -M main
+git remote add origin https://github.com/machideau/YadeSode.git
+git push -u origin main
