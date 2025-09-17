@@ -1,0 +1,474 @@
+# docker-compose.yml - Configuration Docker pour le développement et la production
+version: '3.8'
+
+services:
+  # Service Web (Apache + PHP)
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: ${ENVIRONMENT:-development}
+    container_name: bulletins_web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-80}:80"
+      - "${SSL_PORT:-443}:443"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/apache/sites-available:/etc/apache2/sites-available
+      - ./docker/apache/apache2.conf:/etc/apache2/apache2.conf
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+      - bulletins_uploads:/var/www/html/uploads
+      - bulletins_bulletins:/var/www/html/bulletins
+      - bulletins_logs:/var/www/html/logs
+      - bulletins_backups:/var/www/html/backups
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DEBUG_MODE=${DEBUG_MODE:-true}
+      - DB_HOST=database
+      - DB_NAME=${DB_NAME:-bulletins_system}
+      - DB_USER=${DB_USER:-bulletin_user}
+      - DB_PASSWORD=${DB_PASSWORD:-secure_password}
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+    depends_on:
+      - database
+      - redis
+    networks:
+      - bulletins_network
+
+  # Service Base de données MySQL
+  database:
+    image: mysql:8.0
+    container_name: bulletins_db
+    restart: unless-stopped
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD:-root_password}
+      - MYSQL_DATABASE=${DB_NAME:-bulletins_system}
+      - MYSQL_USER=${DB_USER:-bulletin_user}
+      - MYSQL_PASSWORD=${DB_PASSWORD:-secure_password}
+    volumes:
+      - bulletins_mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./database/seeds.sql:/docker-entrypoint-initdb.d/02-seeds.sql:ro
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/custom.cnf:ro
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - bulletins_network
+
+  # Service Redis (Cache & Sessions)
+  redis:
+    image: redis:7-alpine
+    container_name: bulletins_redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - bulletins_redis_data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - bulletins_network
+
+  # Service de monitoring (Prometheus - optionnel)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: bulletins_prometheus
+    restart: unless-stopped
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - bulletins_prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+    networks:
+      - bulletins_network
+    profiles:
+      - monitoring
+
+  # Service Grafana (Dashboards - optionnel)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: bulletins_grafana
+    restart: unless-stopped
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - bulletins_grafana_data:/var/lib/grafana
+      - ./docker/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./docker/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - bulletins_network
+    profiles:
+      - monitoring
+
+  # Service de backup automatique
+  backup:
+    image: alpine:latest
+    container_name: bulletins_backup
+    restart: unless-stopped
+    volumes:
+      - bulletins_mysql_data:/data/mysql:ro
+      - bulletins_uploads:/data/uploads:ro
+      - bulletins_bulletins:/data/bulletins:ro
+      - bulletins_backups:/backups
+      - ./docker/scripts/backup.sh:/backup.sh:ro
+    environment:
+      - BACKUP_SCHEDULE=${BACKUP_SCHEDULE:-0 2 * * *}
+      - BACKUP_RETENTION=${BACKUP_RETENTION:-30}
+    command: crond -f
+    networks:
+      - bulletins_network
+    profiles:
+      - production
+
+# Volumes persistants
+volumes:
+  bulletins_mysql_data:
+    driver: local
+  bulletins_redis_data:
+    driver: local
+  bulletins_uploads:
+    driver: local
+  bulletins_bulletins:
+    driver: local
+  bulletins_logs:
+    driver: local
+  bulletins_backups:
+    driver: local
+  bulletins_prometheus_data:
+    driver: local
+  bulletins_grafana_data:
+    driver: local
+
+# Réseau
+networks:
+  bulletins_network:
+    driver: bridge
+
+---
+# Dockerfile
+FROM php:8.2-apache AS base
+
+# Installation des extensions PHP
+RUN apt-get update && apt-get install -y \
+    libzip-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libxml2-dev \
+    libonig-dev \
+    libcurl4-openssl-dev \
+    libssl-dev \
+    tesseract-ocr \
+    tesseract-ocr-fra \
+    poppler-utils \
+    imagemagick \
+    git \
+    unzip \
+    curl \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+        pdo_mysql \
+        mysqli \
+        gd \
+        zip \
+        xml \
+        mbstring \
+        curl \
+        opcache
+
+# Installation de Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Configuration Apache
+RUN a2enmod rewrite headers ssl
+COPY docker/apache/sites-available/000-default.conf /etc/apache2/sites-available/
+COPY docker/apache/apache2.conf /etc/apache2/apache2.conf
+
+# Répertoire de travail
+WORKDIR /var/www/html
+
+# Copier les fichiers de l'application
+COPY . .
+
+# Installer les dépendances PHP
+RUN composer install --optimize-autoloader --no-dev
+
+# Permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html \
+    && chmod -R 777 /var/www/html/uploads \
+                    /var/www/html/bulletins \
+                    /var/www/html/logs \
+                    /var/www/html/backups \
+                    /var/www/html/temp
+
+# Stage de développement
+FROM base AS development
+
+# Configuration PHP pour développement
+COPY docker/php/development.ini /usr/local/etc/php/conf.d/custom.ini
+
+# Installer Xdebug
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug
+
+# Exposer le port
+EXPOSE 80
+
+# Stage de production
+FROM base AS production
+
+# Configuration PHP pour production
+COPY docker/php/production.ini /usr/local/etc/php/conf.d/custom.ini
+
+# Supprimer les fichiers inutiles
+RUN rm -rf /var/www/html/docker \
+           /var/www/html/tests \
+           /var/www/html/.git \
+           /var/www/html/README.md
+
+# Configuration de sécurité
+RUN echo "ServerTokens Prod" >> /etc/apache2/apache2.conf \
+    && echo "ServerSignature Off" >> /etc/apache2/apache2.conf
+
+# Script de santé
+COPY docker/scripts/healthcheck.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/healthcheck.sh
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD /usr/local/bin/healthcheck.sh
+
+EXPOSE 80 443
+
+---
+# docker/apache/sites-available/000-default.conf
+<VirtualHost *:80>
+    ServerName localhost
+    DocumentRoot /var/www/html
+    
+    <Directory /var/www/html>
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+    
+    # API Routes
+    <Directory /var/www/html/api>
+        AllowOverride All
+        Require all granted
+    </Directory>
+    
+    # Sécurité
+    <FilesMatch "\.(htaccess|htpasswd|ini|log|sh|sql)$">
+        Require all denied
+    </FilesMatch>
+    
+    # Headers de sécurité
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: https:; font-src 'self' https://cdnjs.cloudflare.com"
+    
+    # Logs
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+
+---
+# docker/php/development.ini
+[PHP]
+display_errors = On
+display_startup_errors = On
+log_errors = On
+error_reporting = E_ALL
+expose_php = Off
+
+memory_limit = 512M
+max_execution_time = 300
+max_input_time = 300
+post_max_size = 50M
+upload_max_filesize = 50M
+
+[opcache]
+opcache.enable = 1
+opcache.memory_consumption = 128
+opcache.interned_strings_buffer = 8
+opcache.max_accelerated_files = 4000
+opcache.revalidate_freq = 2
+opcache.fast_shutdown = 1
+
+[xdebug]
+xdebug.mode = debug
+xdebug.client_host = host.docker.internal
+xdebug.client_port = 9003
+xdebug.start_with_request = yes
+
+---
+# docker/php/production.ini
+[PHP]
+display_errors = Off
+display_startup_errors = Off
+log_errors = On
+error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT
+expose_php = Off
+
+memory_limit = 256M
+max_execution_time = 300
+max_input_time = 300
+post_max_size = 20M
+upload_max_filesize = 10M
+
+session.cookie_secure = 1
+session.cookie_httponly = 1
+session.use_strict_mode = 1
+session.cookie_samesite = "Strict"
+
+[opcache]
+opcache.enable = 1
+opcache.memory_consumption = 256
+opcache.interned_strings_buffer = 16
+opcache.max_accelerated_files = 8000
+opcache.revalidate_freq = 0
+opcache.validate_timestamps = 0
+opcache.fast_shutdown = 1
+
+---
+# docker/mysql/my.cnf
+[mysqld]
+# Performance
+innodb_buffer_pool_size = 256M
+innodb_log_file_size = 64M
+innodb_flush_log_at_trx_commit = 2
+innodb_lock_wait_timeout = 50
+
+# Sécurité
+skip-name-resolve
+bind-address = 0.0.0.0
+
+# Charset
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+# Logs
+general_log = 1
+general_log_file = /var/lib/mysql/mysql.log
+slow_query_log = 1
+slow_query_log_file = /var/lib/mysql/slow.log
+long_query_time = 2
+
+[mysql]
+default-character-set = utf8mb4
+
+[client]
+default-character-set = utf8mb4
+
+---
+# docker/scripts/healthcheck.sh
+#!/bin/bash
+
+# Test Apache
+if ! curl -f -s http://localhost/api/health >/dev/null; then
+    echo "Apache health check failed"
+    exit 1
+fi
+
+# Test PHP
+if ! php -m >/dev/null; then
+    echo "PHP health check failed"
+    exit 1
+fi
+
+echo "Health check passed"
+exit 0
+
+---
+# .env.example - Variables d'environnement
+# Copier vers .env et adapter les valeurs
+
+# Environnement
+ENVIRONMENT=development
+DEBUG_MODE=true
+
+# Ports
+WEB_PORT=80
+SSL_PORT=443
+DB_PORT=3306
+REDIS_PORT=6379
+
+# Base de données
+DB_NAME=bulletins_system
+DB_USER=bulletin_user
+DB_PASSWORD=secure_password_here
+DB_ROOT_PASSWORD=root_password_here
+
+# SMTP (optionnel)
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASSWORD=
+
+# Monitoring (optionnel)
+PROMETHEUS_PORT=9090
+GRAFANA_PORT=3000
+GRAFANA_PASSWORD=admin_password_here
+
+# Backup
+BACKUP_SCHEDULE="0 2 * * *"
+BACKUP_RETENTION=30
+
+---
+# Makefile - Commandes utiles
+.PHONY: help install dev prod stop restart logs backup
+
+help: ## Afficher cette aide
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+install: ## Installation initiale
+	cp .env.example .env
+	docker-compose up -d database redis
+	sleep 10
+	docker-compose up -d web
+	docker-compose exec web php scripts/maintenance.php health
+
+dev: ## Démarrer en mode développement
+	ENVIRONMENT=development docker-compose up -d
+	@echo "Application disponible sur http://localhost"
+
+prod: ## Démarrer en mode production
+	ENVIRONMENT=production docker-compose --profile production up -d
+	@echo "Application en production démarrée"
+
+stop: ## Arrêter tous les services
+	docker-compose down
+
+restart: ## Redémarrer les services
+	docker-compose restart
+
+logs: ## Afficher les logs
+	docker-compose logs -f web
+
+backup: ## Créer une sauvegarde
+	docker-compose exec web php scripts/maintenance.php backup
+
+shell: ## Shell dans le conteneur web
+	docker-compose exec web bash
+
+mysql: ## Client MySQL
+	docker-compose exec database mysql -u$(DB_USER) -p$(DB_PASSWORD) $(DB_NAME)
+
+clean: ## Nettoyer les volumes et images
+	docker-compose down -v
+	docker system prune -f

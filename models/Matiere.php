@@ -4,8 +4,8 @@ class Matiere extends BaseModel {
     
     public function create($data) {
         $query = "INSERT INTO " . $this->table . " 
-                (nom, code, coefficient, couleur, description, etablissement_id) 
-                VALUES (:nom, :code, :coefficient, :couleur, :description, :etablissement_id)";
+                  (nom, code, coefficient, couleur, description, etablissement_id) 
+                  VALUES (:nom, :code, :coefficient, :couleur, :description, :etablissement_id)";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':nom', $data['nom']);
@@ -23,9 +23,9 @@ class Matiere extends BaseModel {
     
     public function update($id, $data) {
         $query = "UPDATE " . $this->table . " 
-                SET nom = :nom, code = :code, coefficient = :coefficient, 
-                couleur = :couleur, description = :description 
-                WHERE id = :id";
+                  SET nom = :nom, code = :code, coefficient = :coefficient, 
+                      couleur = :couleur, description = :description 
+                  WHERE id = :id";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);

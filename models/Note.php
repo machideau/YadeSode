@@ -60,14 +60,14 @@ class Note extends BaseModel {
     
     public function getByEleveAndPeriode($eleveId, $periodeId) {
         $query = "SELECT n.*, e.titre as evaluation_titre, m.nom as matiere_nom, 
-                        te.nom as type_evaluation, e.note_sur, e.date_evaluation
-                FROM " . $this->table . " n
-                JOIN evaluations e ON n.evaluation_id = e.id
-                JOIN classe_matiere_professeur cmp ON e.classe_matiere_professeur_id = cmp.id
-                JOIN matieres m ON cmp.matiere_id = m.id
-                JOIN types_evaluations te ON e.type_evaluation_id = te.id
-                WHERE n.eleve_id = :eleve_id AND e.periode_id = :periode_id
-                ORDER BY m.nom, e.date_evaluation";
+                         te.nom as type_evaluation, e.note_sur, e.date_evaluation
+                  FROM " . $this->table . " n
+                  JOIN evaluations e ON n.evaluation_id = e.id
+                  JOIN classe_matiere_professeur cmp ON e.classe_matiere_professeur_id = cmp.id
+                  JOIN matieres m ON cmp.matiere_id = m.id
+                  JOIN types_evaluations te ON e.type_evaluation_id = te.id
+                  WHERE n.eleve_id = :eleve_id AND e.periode_id = :periode_id
+                  ORDER BY m.nom, e.date_evaluation";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':eleve_id', $eleveId, PDO::PARAM_INT);
@@ -79,11 +79,11 @@ class Note extends BaseModel {
     
     public function calculateMoyenneMatiere($eleveId, $matiereId, $periodeId) {
         $query = "SELECT n.note, te.coefficient as coeff_type, e.note_sur
-                FROM " . $this->table . " n
-                JOIN evaluations e ON n.evaluation_id = e.id
-                JOIN classe_matiere_professeur cmp ON e.classe_matiere_professeur_id = cmp.id
-                JOIN types_evaluations te ON e.type_evaluation_id = te.id
-                WHERE n.eleve_id = :eleve_id 
+                  FROM " . $this->table . " n
+                  JOIN evaluations e ON n.evaluation_id = e.id
+                  JOIN classe_matiere_professeur cmp ON e.classe_matiere_professeur_id = cmp.id
+                  JOIN types_evaluations te ON e.type_evaluation_id = te.id
+                  WHERE n.eleve_id = :eleve_id 
                     AND cmp.matiere_id = :matiere_id 
                     AND e.periode_id = :periode_id 
                     AND n.statut = 'present' 
@@ -114,4 +114,6 @@ class Note extends BaseModel {
         }
         
         return $totalCoefficients > 0 ? round($totalPoints / $totalCoefficients, 2) : null;
+    }
+}
 ?>

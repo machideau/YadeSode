@@ -4,10 +4,10 @@ class User extends BaseModel {
     
     public function create($data) {
         $query = "INSERT INTO " . $this->table . " 
-                (nom, prenoms, email, telephone, date_naissance, sexe, adresse, 
-                type_user, matricule, mot_de_passe, etablissement_id) 
-                VALUES (:nom, :prenoms, :email, :telephone, :date_naissance, :sexe, 
-                :adresse, :type_user, :matricule, :mot_de_passe, :etablissement_id)";
+                  (nom, prenoms, email, telephone, date_naissance, sexe, adresse, 
+                   type_user, matricule, mot_de_passe, etablissement_id) 
+                  VALUES (:nom, :prenoms, :email, :telephone, :date_naissance, :sexe, 
+                          :adresse, :type_user, :matricule, :mot_de_passe, :etablissement_id)";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':nom', $data['nom']);
@@ -30,9 +30,9 @@ class User extends BaseModel {
     
     public function update($id, $data) {
         $query = "UPDATE " . $this->table . " 
-                SET nom = :nom, prenoms = :prenoms, email = :email, telephone = :telephone, 
-                date_naissance = :date_naissance, sexe = :sexe, adresse = :adresse 
-                WHERE id = :id";
+                  SET nom = :nom, prenoms = :prenoms, email = :email, telephone = :telephone, 
+                      date_naissance = :date_naissance, sexe = :sexe, adresse = :adresse 
+                  WHERE id = :id";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
@@ -73,8 +73,8 @@ class User extends BaseModel {
         $year = date('Y');
         
         $query = "SELECT COUNT(*) as count FROM " . $this->table . " 
-                WHERE type_user = :type_user AND etablissement_id = :etablissement_id 
-                AND YEAR(created_at) = :year";
+                  WHERE type_user = :type_user AND etablissement_id = :etablissement_id 
+                  AND YEAR(created_at) = :year";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':type_user', $type_user);

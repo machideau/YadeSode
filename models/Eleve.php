@@ -4,8 +4,8 @@ class Eleve extends BaseModel {
     
     public function create($data) {
         $query = "INSERT INTO " . $this->table . " 
-                (user_id, classe_id, date_inscription, nom_pere, nom_mere, telephone_tuteur) 
-                VALUES (:user_id, :classe_id, :date_inscription, :nom_pere, :nom_mere, :telephone_tuteur)";
+                  (user_id, classe_id, date_inscription, nom_pere, nom_mere, telephone_tuteur) 
+                  VALUES (:user_id, :classe_id, :date_inscription, :nom_pere, :nom_mere, :telephone_tuteur)";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':user_id', $data['user_id'], PDO::PARAM_INT);
@@ -23,9 +23,9 @@ class Eleve extends BaseModel {
     
     public function update($id, $data) {
         $query = "UPDATE " . $this->table . " 
-                SET classe_id = :classe_id, nom_pere = :nom_pere, nom_mere = :nom_mere, 
-                telephone_tuteur = :telephone_tuteur, statut = :statut 
-                WHERE id = :id";
+                  SET classe_id = :classe_id, nom_pere = :nom_pere, nom_mere = :nom_mere, 
+                      telephone_tuteur = :telephone_tuteur, statut = :statut 
+                  WHERE id = :id";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
@@ -40,10 +40,10 @@ class Eleve extends BaseModel {
     
     public function getByClasse($classe_id) {
         $query = "SELECT e.*, u.nom, u.prenoms, u.matricule, u.date_naissance 
-                FROM " . $this->table . " e
-                JOIN users u ON e.user_id = u.id
-                WHERE e.classe_id = :classe_id AND e.statut = 'inscrit'
-                ORDER BY u.nom, u.prenoms";
+                  FROM " . $this->table . " e
+                  JOIN users u ON e.user_id = u.id
+                  WHERE e.classe_id = :classe_id AND e.statut = 'inscrit'
+                  ORDER BY u.nom, u.prenoms";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':classe_id', $classe_id, PDO::PARAM_INT);

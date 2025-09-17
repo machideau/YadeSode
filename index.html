@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Système de Gestion des Bulletins</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar-transition { transition: all 0.3s ease-in-out; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-graduation-cap text-2xl text-blue-600"></i>
+                    <h1 class="text-xl font-bold text-gray-800">Bulletin Manager</h1>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button id="notificationBtn" class="text-gray-600 hover:text-gray-900 relative">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                        </button>
+                    </div>
+                    
+                    <div class="relative">
+                        <button id="userMenuBtn" class="flex items-center space-x-2 text-gray-700 hover:text-gray-900">
+                            <img src="https://via.placeholder.com/32" alt="Avatar" class="w-8 h-8 rounded-full">
+                            <span id="userName">Admin</span>
+                            <i class="fas fa-chevron-down text-sm"></i>
+                        </button>
+                        
+                        <!-- Dropdown menu -->
+                        <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-user mr-2"></i>Profil
+                            </a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-cog mr-2"></i>Paramètres
+                            </a>
+                            <hr class="my-1">
+                            <a href="#" id="logoutBtn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex pt-16">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-64 min-h-screen bg-white shadow-lg sidebar-transition">
+            <div class="p-6">
+                <nav class="mt-6">
+                    <div class="space-y-2">
+                        <a href="#dashboard" class="nav-link flex items-center space-x-3 text-gray-700 p-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                            <i class="fas fa-home w-5 h-5"></i>
+                            <span>Tableau de Bord</span>
+                        </a>
+                        
+                        <a href="#classes" class="nav-link flex items-center space-x-3 text-gray-700 p-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                            <i class="fas fa-school w-5 h-5"></i>
+                            <span>Classes</span>
+                        </a>
+                        
+                        <a href="#eleves" class="nav-link flex items-center space-x-3 text-gray-700 p-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                            <i class="fas fa-users w-5 h-5"></i>
+                            <span>Élèves</span>
+                        </a>
+                        
+                        <a href="#matieres" class="nav-link flex items-center space-x-3 text-gray-700 p-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                            <i class="fas fa-book w-5 h-5"></i>
+                            <span>Matières</span>
+                        </a>
+                        
+                        <a href="#notes" class="nav-link flex items-center space-x-3 text-gray-700 p-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                            <i class="fas fa-clipboard-list w-5 h-5"></i>
+                            <span>Saisie Notes</span>
+                        </a>
+                        
+                        <a href="#upload" class="nav-link flex items-center space-x-3 text-gray-700 p-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                            <i class="fas fa-upload w-5 h-5"></i>
+                            <span>Import Fichiers</span>
+                        </a>
+                        
+                        <a href="#bulletins" class="nav-link flex items-center space-x-3 text-gray-700 p-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                            <i class="fas fa-file-pdf w-5 h-5"></i>
+                            <span>Bulletins</span>
+                        </a>
+                        
+                        <a href="#reports" class="nav-link flex items-center space-x-3 text-gray-700 p-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                            <i class="fas fa-chart-bar w-5 h-5"></i>
+                            <span>Statistiques</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="section">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Tableau de Bord</h2>
+                    <p class="text-gray-600">Aperçu général du système de gestion des bulletins</p>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 card-hover transition-all">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm font-medium">Total Élèves</p>
+                                <p class="text-2xl font-bold text-gray-800" id="totalEleves">0</p>
+                            </div>
+                            <div class="bg-blue-100 p-3 rounded-lg">
+                                <i class="fas fa-users text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 card-hover transition-all">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm font-medium">Classes</p>
+                                <p class="text-2xl font-bold text-gray-800" id="totalClasses">0</p>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-lg">
+                                <i class="fas fa-school text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 card-hover transition-all">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm font-medium">Bulletins Générés</p>
+                                <p class="text-2xl font-bold text-gray-800" id="totalBulletins">0</p>
+                            </div>
+                            <div class="bg-purple-100 p-3 rounded-lg">
+                                <i class="fas fa-file-pdf text-purple-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 card-hover transition-all">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm font-medium">Imports Récents</p>
+                                <p class="text-2xl font-bold text-gray-800" id="totalImports">0</p>
+                            </div>
+                            <div class="bg-orange-100 p-3 rounded-lg">
+                                <i class="fas fa-upload text-orange-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                        <div class="p-6 border-b border-gray-100">
+                            <h3 class="text-lg font-semibold text-gray-800">Activités Récentes</h3>
+                        </div>
+                        <div class="p-6">
+                            <div id="recentActivities" class="space-y-4">
+                                <!-- Les activités seront chargées dynamiquement -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                        <div class="p-6 border-b border-gray-100">
+                            <h3 class="text-lg font-semibold text-gray-800">Actions Rapides</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-2 gap-4">
+                                <button class="quick-action-btn bg-blue-50 hover:bg-blue-100 text-blue-700 p-4 rounded-lg text-center transition-colors" data-action="add-eleve">
+                                    <i class="fas fa-user-plus text-2xl mb-2"></i>
+                                    <p class="text-sm font-medium">Ajouter Élève</p>
+                                </button>
+                                
+                                <button class="quick-action-btn bg-green-50 hover:bg-green-100 text-green-700 p-4 rounded-lg text-center transition-colors" data-action="upload-notes">
+                                    <i class="fas fa-upload text-2xl mb-2"></i>
+                                    <p class="text-sm font-medium">Importer Notes</p>
+                                </button>
+                                
+                                <button class="quick-action-btn bg-purple-50 hover:bg-purple-100 text-purple-700 p-4 rounded-lg text-center transition-colors" data-action="generate-bulletin">
+                                    <i class="fas fa-file-pdf text-2xl mb-2"></i>
+                                    <p class="text-sm font-medium">Générer Bulletin</p>
+                                </button>
+                                
+                                <button class="quick-action-btn bg-orange-50 hover:bg-orange-100 text-orange-700 p-4 rounded-lg text-center transition-colors" data-action="view-stats">
+                                    <i class="fas fa-chart-bar text-2xl mb-2"></i>
+                                    <p class="text-sm font-medium">Voir Stats</p>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Classes Section -->
+            <div id="classes-section" class="section hidden">
+                <div class="mb-8">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-3xl font-bold text-gray-800 mb-2">Gestion des Classes</h2>
+                            <p class="text-gray-600">Créer et gérer les classes de l'établissement</p>
+                        </div>
+                        <button id="addClasseBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Nouvelle Classe
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="p-6">
+                        <div id="classesTable">
+                            <!-- Table sera générée dynamiquement -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Section -->
+            <div id="upload-section" class="section hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Import de Fichiers</h2>
+                    <p class="text-gray-600">Importer des notes depuis Excel, CSV, PDF ou images</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Upload Form -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                        <div class="p-6 border-b border-gray-100">
+                            <h3 class="text-lg font-semibold text-gray-800">Télécharger un Fichier</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center" id="dropZone">
+                                <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                                <p class="text-gray-600 mb-4">Glissez-déposez votre fichier ici ou</p>
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors" id="selectFileBtn">
+                                    Sélectionner un fichier
+                                </button>
+                                <input type="file" id="fileInput" class="hidden" accept=".xlsx,.xls,.csv,.pdf,.jpg,.jpeg,.png">
+                                <p class="text-sm text-gray-500 mt-2">Formats supportés: Excel, CSV, PDF, Images</p>
+                            </div>
+                            
+                            <div id="uploadProgress" class="hidden mt-4">
+                                <div class="bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" id="progressBar" style="width: 0%"></div>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-2" id="progressText">Téléchargement en cours...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Import History -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                        <div class="p-6 border-b border-gray-100">
+                            <h3 class="text-lg font-semibold text-gray-800">Historique des Imports</h3>
+                        </div>
+                        <div class="p-6">
+                            <div id="importHistory">
+                                <!-- L'historique sera chargé dynamiquement -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal pour ajouter une classe -->
+    <div id="classeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-lg max-w-md w-full mx-4">
+            <div class="p-6 border-b border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-800">Nouvelle Classe</h3>
+            </div>
+            <form id="classeForm" class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nom de la classe</label>
+                        <input type="text" id="classeNom" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: 6ème A">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Niveau</label>
+                        <input type="text" id="classeNiveau" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: 6ème">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Section</label>
+                        <input type="text" id="classeSection" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: A">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Effectif Maximum</label>
+                        <input type="number" id="classeEffectif" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="35">
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" id="cancelClasseBtn" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        Annuler
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        Créer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE = 'api/';
+        
+        // Global Variables
+        let currentUser = null;
+        let currentSection = 'dashboard';
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            initializeEventListeners();
+            loadDashboardData();
+        });
+
+        // Authentication
+        function checkAuth() {
+            // Simuler la vérification d'authentification
+            // En production, vérifier le token/session
+            currentUser = {
+                id: 1,
+                nom: 'Admin',
+                type_user: 'admin',
+                etablissement_id: 1
+            };
+            
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.nom;
+            }
+        }
+
+        // Event Listeners
+        function initializeEventListeners() {
+            // Navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.getAttribute('href').substring(1);
+                    showSection(section);
+                });
+            });
+
+            // User menu
+            document.getElementById('userMenuBtn').addEventListener('click', function() {
+                document.getElementById('userMenu').classList.toggle('hidden');
+            });
+
+            // Close user menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!document.getElementById('userMenuBtn').contains(e.target)) {
+                    document.getElementById('userMenu').classList.add('hidden');
+                }
+            });
+
+            // Quick actions
+            document.querySelectorAll('.quick-action-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const action = this.dataset.action;
+                    handleQuickAction(action);
+                });
+            });
+
+            // Classe modal
+            document.getElementById('addClasseBtn').addEventListener('click', showClasseModal);
+            document.getElementById('cancelClasseBtn').addEventListener('click', hideClasseModal);
+            document.getElementById('classeForm').addEventListener('submit', handleClasseSubmit);
+
+            // File upload
+            document.getElementById('selectFileBtn').addEventListener('click', function() {
+                document.getElementById('fileInput').click();
+            });
+            
+            document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+
+            // Drag and drop
+            const dropZone = document.getElementById('dropZone');
+            dropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('border-blue-500', 'bg-blue-50');
+            });
+            
+            dropZone.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('border-blue-500', 'bg-blue-50');
+            });
+            
+            dropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('border-blue-500', 'bg-blue-50');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    uploadFile(files[0]);
+                }
+            });
+        }
+
+        // Section Management
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            const targetSection = document.getElementById(sectionName + '-section');
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                currentSection = sectionName;
+                
+                // Update navigation
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('bg-blue-50', 'text-blue-600');
+                });
+                
+                document.querySelector(`[href="#${sectionName}"]`).classList.add('bg-blue-50', 'text-blue-600');
+                
+                // Load section data
+                loadSectionData(sectionName);
+            }
+        }
+
+        // Load section-specific data
+        function loadSectionData(section) {
+            switch(section) {
+                case 'classes':
+                    loadClasses();
+                    break;
+                case 'eleves':
+                    loadEleves();
+                    break;
+                case 'upload':
+                    loadImportHistory();
+                    break;
+                // Add more cases as needed
+            }
+        }
+
+        // Dashboard Data
+        function loadDashboardData() {
+            // Charger les statistiques du dashboard
+            Promise.all([
+                apiCall('classes'),
+                apiCall('eleves'),
+                // Ajouter d'autres appels API selon les besoins
+            ]).then(([classes, eleves]) => {
+                document.getElementById('totalClasses').textContent = classes?.data?.length || 0;
+                document.getElementById('totalEleves').textContent = eleves?.data?.length || 0;
+                
+                // Simuler d'autres statistiques
+                document.getElementById('totalBulletins').textContent = '156';
+                document.getElementById('totalImports').textContent = '23';
+            }).catch(error => {
+                console.error('Erreur chargement dashboard:', error);
+            });
+
+            // Charger les activités récentes
+            loadRecentActivities();
+        }
+
+        function loadRecentActivities() {
+            const activities = [
+                {
+                    icon: 'fas fa-user-plus',
+                    color: 'text-blue-600',
+                    bg: 'bg-blue-100',
+                    message: 'Nouvel élève ajouté: Marie Dupont',
+                    time: 'Il y a 2h'
+                },
+                {
+                    icon: 'fas fa-upload',
+                    color: 'text-green-600',
+                    bg: 'bg-green-100',
+                    message: 'Import de notes terminé: Mathématiques 6èmeA',
+                    time: 'Il y a 3h'
+                },
+                {
+                    icon: 'fas fa-file-pdf',
+                    color: 'text-purple-600',
+                    bg: 'bg-purple-100',
+                    message: '25 bulletins générés pour la classe 5èmeB',
+                    time: 'Il y a 5h'
+                }
+            ];
+
+            const container = document.getElementById('recentActivities');
+            container.innerHTML = activities.map(activity => `
+                <div class="flex items-center space-x-3">
+                    <div class="${activity.bg} p-2 rounded-lg">
+                        <i class="${activity.icon} ${activity.color}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm text-gray-800">${activity.message}</p>
+                        <p class="text-xs text-gray-500">${activity.time}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Quick Actions
+        function handleQuickAction(action) {
+            switch(action) {
+                case 'add-eleve':
+                    showSection('eleves');
+                    // Ouvrir le modal d'ajout d'élève
+                    break;
+                case 'upload-notes':
+                    showSection('upload');
+                    break;
+                case 'generate-bulletin':
+                    showSection('bulletins');
+                    break;
+                case 'view-stats':
+                    showSection('reports');
+                    break;
+            }
+        }
+
+        // Classes Management
+        function loadClasses() {
+            showLoading('classesTable');
+            
+            apiCall('classes').then(response => {
+                if (response.status === 'success') {
+                    displayClassesTable(response.data);
+                } else {
+                    showError('Erreur lors du chargement des classes');
+                }
+            }).catch(error => {
+                console.error('Erreur:', error);
+                showError('Erreur de connexion');
+            });
+        }
+
+        function displayClassesTable(classes) {
+            const container = document.getElementById('classesTable');
+            
+            if (classes.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fas fa-school text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500">Aucune classe trouvée</p>
+                        <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                            Créer une classe
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const table = `
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Classe</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Niveau</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Effectif</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prof. Principal</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            ${classes.map(classe => `
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">${classe.nom}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-500">${classe.niveau || '-'}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-500">0/${classe.effectif_max}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-500">${classe.prof_principal_nom || 'Non assigné'}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button onclick="viewClasse(${classe.id})" class="text-blue-600 hover:text-blue-900 mr-3">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button onclick="editClasse(${classe.id})" class="text-yellow-600 hover:text-yellow-900 mr-3">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button onclick="deleteClasse(${classe.id})" class="text-red-600 hover:text-red-900">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            container.innerHTML = table;
+        }
+
+        // Classe Modal Management
+        function showClasseModal() {
+            document.getElementById('classeModal').classList.remove('hidden');
+        }
+
+        function hideClasseModal() {
+            document.getElementById('classeModal').classList.add('hidden');
+            document.getElementById('classeForm').reset();
+        }
+
+        function handleClasseSubmit(e) {
+            e.preventDefault();
+            
+            const formData = {
+                nom: document.getElementById('classeNom').value,
+                niveau: document.getElementById('classeNiveau').value,
+                section: document.getElementById('classeSection').value,
+                effectif_max: parseInt(document.getElementById('classeEffectif').value),
+                etablissement_id: currentUser.etablissement_id,
+                annee_scolaire_id: 1 // À adapter selon l'année scolaire active
+            };
+
+            apiCall('classes', 'POST', formData).then(response => {
+                if (response.status === 'success') {
+                    showSuccess('Classe créée avec succès');
+                    hideClasseModal();
+                    loadClasses();
+                } else {
+                    showError(response.message || 'Erreur lors de la création');
+                }
+            }).catch(error => {
+                console.error('Erreur:', error);
+                showError('Erreur de connexion');
+            });
+        }
+
+        // File Upload Management
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                uploadFile(file);
+            }
+        }
+
+        function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Show progress
+            document.getElementById('uploadProgress').classList.remove('hidden');
+            
+            // Simulate upload progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 30;
+                if (progress > 90) progress = 90;
+                
+                document.getElementById('progressBar').style.width = progress + '%';
+                document.getElementById('progressText').textContent = `Téléchargement: ${Math.round(progress)}%`;
+            }, 200);
+
+            // Actual upload
+            fetch(API_BASE + 'upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                clearInterval(progressInterval);
+                document.getElementById('progressBar').style.width = '100%';
+                document.getElementById('progressText').textContent = 'Téléchargement terminé!';
+                
+                setTimeout(() => {
+                    document.getElementById('uploadProgress').classList.add('hidden');
+                    document.getElementById('progressBar').style.width = '0%';
+                }, 2000);
+
+                if (data.status === 'success') {
+                    showSuccess('Fichier téléchargé avec succès');
+                    loadImportHistory();
+                } else {
+                    showError(data.message || 'Erreur lors du téléchargement');
+                }
+            })
+            .catch(error => {
+                clearInterval(progressInterval);
+                document.getElementById('uploadProgress').classList.add('hidden');
+                console.error('Erreur:', error);
+                showError('Erreur lors du téléchargement');
+            });
+        }
+
+        function loadImportHistory() {
+            // Simuler l'historique des imports
+            const imports = [
+                {
+                    id: 1,
+                    nom_fichier: 'notes_math_6eme.xlsx',
+                    type_fichier: 'excel',
+                    statut: 'importe',
+                    created_at: '2024-01-15 10:30:00'
+                },
+                {
+                    id: 2,
+                    nom_fichier: 'bulletin_scan.jpg',
+                    type_fichier: 'image',
+                    statut: 'en_cours',
+                    created_at: '2024-01-15 09:15:00'
+                }
+            ];
+
+            const container = document.getElementById('importHistory');
+            container.innerHTML = imports.map(import_ => `
+                <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg mb-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="p-2 rounded-lg ${getFileTypeColor(import_.type_fichier).bg}">
+                            <i class="${getFileTypeIcon(import_.type_fichier)} ${getFileTypeColor(import_.type_fichier).text}"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">${import_.nom_fichier}</p>
+                            <p class="text-xs text-gray-500">${formatDate(import_.created_at)}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="px-2 py-1 text-xs rounded-full ${getStatusColor(import_.statut)}">
+                            ${getStatusText(import_.statut)}
+                        </span>
+                        <button onclick="processImport(${import_.id})" class="text-blue-600 hover:text-blue-900" ${import_.statut !== 'converti' ? 'disabled' : ''}>
+                            <i class="fas fa-play"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Utility Functions
+        function apiCall(endpoint, method = 'GET', data = null) {
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            };
+
+            if (data && method !== 'GET') {
+                options.body = JSON.stringify(data);
+            }
+
+            return fetch(API_BASE + endpoint, options)
+                .then(response => response.json());
+        }
+
+        function showLoading(containerId) {
+            document.getElementById(containerId).innerHTML = `
+                <div class="flex justify-center items-center py-8">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <span class="ml-2 text-gray-600">Chargement...</span>
+                </div>
+            `;
+        }
+
+        function showSuccess(message) {
+            showNotification(message, 'success');
+        }
+
+        function showError(message) {
+            showNotification(message, 'error');
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+            }`;
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas ${type === 'success' ? 'fa-check' : 'fa-exclamation-triangle'} mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        function getFileTypeIcon(type) {
+            const icons = {
+                'excel': 'fas fa-file-excel',
+                'csv': 'fas fa-file-csv',
+                'pdf': 'fas fa-file-pdf',
+                'image': 'fas fa-file-image'
+            };
+            return icons[type] || 'fas fa-file';
+        }
+
+        function getFileTypeColor(type) {
+            const colors = {
+                'excel': { bg: 'bg-green-100', text: 'text-green-600' },
+                'csv': { bg: 'bg-blue-100', text: 'text-blue-600' },
+                'pdf': { bg: 'bg-red-100', text: 'text-red-600' },
+                'image': { bg: 'bg-purple-100', text: 'text-purple-600' }
+            };
+            return colors[type] || { bg: 'bg-gray-100', text: 'text-gray-600' };
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'en_cours': 'bg-yellow-100 text-yellow-800',
+                'converti': 'bg-blue-100 text-blue-800',
+                'importe': 'bg-green-100 text-green-800',
+                'erreur': 'bg-red-100 text-red-800'
+            };
+            return colors[status] || 'bg-gray-100 text-gray-800';
+        }
+
+        function getStatusText(status) {
+            const texts = {
+                'en_cours': 'En cours',
+                'converti': 'Converti',
+                'importe': 'Importé',
+                'erreur': 'Erreur'
+            };
+            return texts[status] || 'Inconnu';
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleString('fr-FR');
+        }
+
+        // Additional Functions
+        function viewClasse(id) {
+            // Ouvrir la vue détaillée de la classe
+            console.log('View classe:', id);
+        }
+
+        function editClasse(id) {
+            // Ouvrir le modal d'édition
+            console.log('Edit classe:', id);
+        }
+
+        function deleteClasse(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette classe ?')) {
+                apiCall(`classes/${id}`, 'DELETE').then(response => {
+                    if (response.status === 'success') {
+                        showSuccess('Classe supprimée avec succès');
+                        loadClasses();
+                    } else {
+                        showError('Erreur lors de la suppression');
+                    }
+                });
+            }
+        }
+
+        function processImport(importId) {
+            apiCall(`upload/import/${importId}`, 'POST').then(response => {
+                if (response.status === 'success') {
+                    showSuccess('Import traité avec succès');
+                    loadImportHistory();
+                } else {
+                    showError('Erreur lors du traitement');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
