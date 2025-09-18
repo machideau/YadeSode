@@ -1,29 +1,29 @@
-# 📚 Système de Gestion des Bulletins Scolaires
+# Système de Gestion des Bulletins Scolaires
 
 Un système complet pour la gestion des notes et la génération automatique de bulletins scolaires avec support d'import de fichiers (Excel, CSV, PDF, Images).
 
-## 🚀 Fonctionnalités Principales
+## Fonctionnalités Principales
 
-### ✅ Gestion Complète
+### Gestion Complète
 - **Établissements** multi-sites
 - **Classes** avec professeurs principaux
 - **Élèves** avec informations détaillées
 - **Matières** avec coefficients personnalisables
 - **Utilisateurs** (admin, professeurs, élèves, parents)
 
-### 📊 Système de Notes
+### Système de Notes
 - **Évaluations** multiples (devoirs, compositions, TP...)
 - **Saisie de notes** par les professeurs
 - **Import intelligent** depuis Excel, CSV, PDF, Images (OCR)
 - **Calculs automatiques** des moyennes et classements
 
-### 📋 Génération de Bulletins
+### Génération de Bulletins
 - **Bulletins PDF** automatiques
 - **Moyennes** par matière et générale
 - **Classements** et rangs
 - **Téléchargement** et archivage
 
-## 🛠️ Technologies Utilisées
+## Technologies Utilisées
 
 ### Backend
 - **PHP 8+** avec architecture MVC
@@ -38,7 +38,7 @@ Un système complet pour la gestion des notes et la génération automatique de 
 - **Font Awesome** pour les icônes
 - Interface responsive et moderne
 
-## 📋 Prérequis
+## Prérequis
 
 ### Serveur
 - **PHP 8.0+** avec extensions :
@@ -54,11 +54,11 @@ Un système complet pour la gestion des notes et la génération automatique de 
 - **pdftotext** (poppler-utils) pour l'extraction PDF
 - **ImageMagick** pour le traitement d'images
 
-## 🔧 Installation
+## Installation
 
 ### 1. Cloner le Projet
 ```bash
-git clone https://github.com/votre-repo/bulletin-system.git
+git clone https://github.com/machideau/YadeSode.git
 cd bulletin-system
 ```
 
@@ -121,7 +121,7 @@ sudo yum install tesseract tesseract-langpack-fra poppler-utils
 brew install tesseract tesseract-lang poppler
 ```
 
-## 🎯 Utilisation
+## Utilisation
 
 ### 1. Accès Initial
 - URL : `http://bulletins.local`
@@ -169,7 +169,7 @@ Dupont;Marie;EL2024001;15.5;Bon travail
 Martin;Paul;EL2024002;12.0;Peut mieux faire
 ```
 
-## 📊 API Endpoints
+## API Endpoints
 
 ### Classes
 - `GET /api/classes` - Liste des classes
@@ -196,7 +196,7 @@ Martin;Paul;EL2024002;12.0;Peut mieux faire
 - `POST /api/bulletins/{eleve_id}/generate/{periode_id}` - Générer bulletin
 - `GET /api/bulletins/{id}/download` - Télécharger PDF
 
-## 🎨 Personnalisation
+## Personnalisation
 
 ### Templates de Bulletins
 Modifier le fichier `services/BulletinService.php` pour customiser :
@@ -211,7 +211,7 @@ Modifier les classes Tailwind dans `index.html` pour :
 - Adapter le layout
 - Ajouter des animations
 
-## 🔒 Sécurité
+## Sécurité
 
 ### Recommandations :
 1. **Mots de passe** : Hash avec `password_hash()`
@@ -228,7 +228,7 @@ upload_max_filesize = 10M
 post_max_size = 10M
 ```
 
-## 📝 Maintenance
+## Maintenance
 
 ### Sauvegardes
 ```bash
@@ -251,7 +251,7 @@ Les logs sont stockés dans :
 3. **CDN** : Pour les assets statiques
 4. **Compression** : Gzip sur Apache/Nginx
 
-## 🐛 Dépannage
+## Dépannage
 
 ### Erreurs Communes
 
@@ -272,7 +272,7 @@ Les logs sont stockés dans :
 - Permissions dossier `bulletins/`
 - Vérifier logs TCPDF
 
-## 📞 Support
+## Support
 
 ### Documentation
 - **Wiki** : Documentation détaillée des fonctionnalités
@@ -282,7 +282,7 @@ Les logs sont stockés dans :
 - **Email** : support@bulletin-system.com
 - **GitHub Issues** : Pour les bugs et améliorations
 
-## 🔄 Roadmap
+## Roadmap
 
 ### Version 2.0
 - [ ] Interface React/Vue.js
@@ -297,15 +297,15 @@ Les logs sont stockés dans :
 - [ ] Export multi-formats
 - [ ] Workflow d'approbation
 
-## 📄 Licence
+## Licence
 
 Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
-## 🙏 Contributeurs
+## Contributeurs
 
-- **Développeur Principal** : [Votre Nom]
-- **UI/UX Design** : [Nom Designer]
-- **Tests** : [Nom Testeur]
+- **Développeur Principal** : [Machideau]
+- **UI/UX Design** : [Prosper]
+- **Tests** : [Maxime]
 
 ---
 
