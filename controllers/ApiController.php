@@ -21,6 +21,11 @@ class ApiController {
         $input = file_get_contents('php://input');
         return json_decode($input, true);
     }
+
+    protected function getUserOrDefaultEtablissementId() {
+        if (session_status() === PHP_SESSION_NONE) { session_start(); }
+        return $_SESSION['etablissement_id'] ?? 1;
+    }
     
     protected function validateRequired($data, $required_fields) {
         $missing = [];

@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Système de Gestion des Bulletins</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -31,7 +33,7 @@
                     
                     <div class="relative">
                         <button id="userMenuBtn" class="flex items-center space-x-2 text-gray-700 hover:text-gray-900">
-                            <img src="https://via.placeholder.com/32" alt="Avatar" class="w-8 h-8 rounded-full">
+                            <img src="images/jarvis.png" alt="Avatar" class="w-8 h-8 rounded-full">
                             <span id="userName">Admin</span>
                             <i class="fas fa-chevron-down text-sm"></i>
                         </button>
@@ -278,6 +280,124 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Eleves Section -->
+            <div id="eleves-section" class="section hidden">
+                <div class="mb-8">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-3xl font-bold text-gray-800 mb-2">Liste des Élèves</h2>
+                            <p class="text-gray-600">Élèves de l'établissement</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button id="addEleveBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                                <i class="fas fa-user-plus mr-2"></i>Ajouter un Élève
+                            </button>
+                            <button id="importElevesBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                                <i class="fas fa-file-csv mr-2"></i>Importer (CSV)
+                            </button>
+                            <input type="file" id="importElevesInput" accept=".csv" class="hidden">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="p-6" id="elevesTable"></div>
+                </div>
+
+                <div id="eleveFormContainer" class="bg-white rounded-xl shadow-sm border border-gray-100 mt-8 hidden">
+                    <div class="p-6 border-b border-gray-100">
+                        <h3 class="text-lg font-semibold text-gray-800">Ajouter un Élève (manuel)</h3>
+                    </div>
+                    <form id="eleveForm" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nom</label>
+                            <input type="text" id="eleveNom" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Prénoms</label>
+                            <input type="text" id="elevePrenoms" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Sexe</label>
+                            <select id="eleveSexe" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                <option value="M">M</option>
+                                <option value="F">F</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Classe (ID)</label>
+                            <input type="number" id="eleveClasseId" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email (optionnel)</label>
+                            <input type="email" id="eleveEmail" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Téléphone (optionnel)</label>
+                            <input type="text" id="eleveTelephone" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div class="md:col-span-2 flex justify-end">
+                            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Ajouter</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Matieres Section -->
+            <div id="matieres-section" class="section hidden">
+                <div class="mb-8">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-3xl font-bold text-gray-800 mb-2">Matières</h2>
+                            <p class="text-gray-600">Liste des matières de l'établissement</p>
+                        </div>
+                        <button id="addMatiereBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Nouvelle Matière
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="p-6" id="matieresTable"></div>
+                </div>
+            </div>
+
+            <!-- Notes Section -->
+            <div id="notes-section" class="section hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Saisie des Notes</h2>
+                    <p class="text-gray-600">Module simplifié (démo) — à enrichir</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <p class="text-gray-600">La saisie avancée arrive prochainement. Utilisez l'import dans l'onglet Import pour le moment.</p>
+                </div>
+            </div>
+
+            <!-- Bulletins Section -->
+            <div id="bulletins-section" class="section hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Génération / Téléchargement des Bulletins</h2>
+                    <p class="text-gray-600">Télécharger les bulletins d'une classe (ZIP) ou générer un bulletin individuel</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                    <h3 class="font-semibold mb-4">Télécharger les bulletins par classe (ZIP)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <select id="zipAnneeId" class="px-3 py-2 border border-gray-300 rounded-lg"></select>
+                    </div>
+                    <div id="zipClassesList" class="divide-y divide-gray-100"></div>
+                    <p class="text-xs text-gray-500 mt-2">Choisissez une année: les classes correspondantes s'affichent avec un bouton Télécharger.</p>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reports-section" class="section hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Statistiques</h2>
+                    <p class="text-gray-600">Aperçu rapide des indicateurs</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6" id="reportsContainer"></div>
+            </div>
         </main>
     </div>
 
@@ -317,6 +437,39 @@
                     <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                         Créer
                     </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal pour ajouter une matière -->
+    <div id="matiereModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-lg max-w-md w-full mx-4">
+            <div class="p-6 border-b border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-800">Nouvelle Matière</h3>
+            </div>
+            <form id="matiereForm" class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nom de la matière</label>
+                        <input type="text" id="matiereNom" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: Mathématiques">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Classe</label>
+                        <select id="matiereClasseId" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Année scolaire</label>
+                        <select id="matiereAnneeId" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Coefficient</label>
+                        <input type="number" step="0.1" id="matiereCoef" class="w-full px-3 py-2 border border-gray-300 rounded-lg" value="1.0">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" id="cancelMatiereBtn" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Annuler</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Créer</button>
                 </div>
             </form>
         </div>
@@ -389,12 +542,30 @@
             document.getElementById('cancelClasseBtn').addEventListener('click', hideClasseModal);
             document.getElementById('classeForm').addEventListener('submit', handleClasseSubmit);
 
+            // Matiere modal
+            document.getElementById('addMatiereBtn').addEventListener('click', showMatiereModal);
+            document.getElementById('cancelMatiereBtn').addEventListener('click', hideMatiereModal);
+            document.getElementById('matiereForm').addEventListener('submit', handleMatiereSubmit);
+
             // File upload
             document.getElementById('selectFileBtn').addEventListener('click', function() {
                 document.getElementById('fileInput').click();
             });
             
             document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+
+            // Import élèves (CSV)
+            document.getElementById('importElevesBtn').addEventListener('click', function() {
+                document.getElementById('importElevesInput').click();
+            });
+            document.getElementById('importElevesInput').addEventListener('change', handleElevesImport);
+
+            // Formulaire ajout élève (manuel)
+            document.getElementById('eleveForm').addEventListener('submit', handleEleveSubmit);
+            document.getElementById('addEleveBtn').addEventListener('click', function() {
+                const ctn = document.getElementById('eleveFormContainer');
+                ctn.classList.toggle('hidden');
+            });
 
             // Drag and drop
             const dropZone = document.getElementById('dropZone');
@@ -452,8 +623,17 @@
                 case 'eleves':
                     loadEleves();
                     break;
+                case 'matieres':
+                    loadMatieres();
+                    break;
                 case 'upload':
                     loadImportHistory();
+                    break;
+                case 'bulletins':
+                    initBulletins();
+                    break;
+                case 'reports':
+                    loadReports();
                     break;
                 // Add more cases as needed
             }
@@ -461,63 +641,49 @@
 
         // Dashboard Data
         function loadDashboardData() {
-            // Charger les statistiques du dashboard
-            Promise.all([
-                apiCall('classes'),
-                apiCall('eleves'),
-                // Ajouter d'autres appels API selon les besoins
-            ]).then(([classes, eleves]) => {
-                document.getElementById('totalClasses').textContent = classes?.data?.length || 0;
-                document.getElementById('totalEleves').textContent = eleves?.data?.length || 0;
-                
-                // Simuler d'autres statistiques
-                document.getElementById('totalBulletins').textContent = '156';
-                document.getElementById('totalImports').textContent = '23';
-            }).catch(error => {
-                console.error('Erreur chargement dashboard:', error);
-            });
+            apiCall('stats/dashboard')
+                .then(stats => {
+                    if (stats && (stats.status === 'success' || !stats.status)) {
+                        const data = stats.data || stats;
+                        document.getElementById('totalEleves').textContent = data.total_eleves ?? 0;
+                        document.getElementById('totalClasses').textContent = data.total_classes ?? 0;
+                        document.getElementById('totalBulletins').textContent = data.bulletins_mois ?? 0;
+                        document.getElementById('totalImports').textContent = data.imports_semaine ?? 0;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur chargement dashboard:', error);
+                });
 
-            // Charger les activités récentes
+            // Charger les activités récentes (placeholder pour l'instant)
             loadRecentActivities();
         }
 
         function loadRecentActivities() {
-            const activities = [
-                {
-                    icon: 'fas fa-user-plus',
-                    color: 'text-blue-600',
-                    bg: 'bg-blue-100',
-                    message: 'Nouvel élève ajouté: Marie Dupont',
-                    time: 'Il y a 2h'
-                },
-                {
-                    icon: 'fas fa-upload',
-                    color: 'text-green-600',
-                    bg: 'bg-green-100',
-                    message: 'Import de notes terminé: Mathématiques 6èmeA',
-                    time: 'Il y a 3h'
-                },
-                {
-                    icon: 'fas fa-file-pdf',
-                    color: 'text-purple-600',
-                    bg: 'bg-purple-100',
-                    message: '25 bulletins générés pour la classe 5èmeB',
-                    time: 'Il y a 5h'
-                }
-            ];
-
             const container = document.getElementById('recentActivities');
-            container.innerHTML = activities.map(activity => `
-                <div class="flex items-center space-x-3">
-                    <div class="${activity.bg} p-2 rounded-lg">
-                        <i class="${activity.icon} ${activity.color}"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-sm text-gray-800">${activity.message}</p>
-                        <p class="text-xs text-gray-500">${activity.time}</p>
-                    </div>
-                </div>
-            `).join('');
+            container.innerHTML = '<div class="text-gray-500 text-sm">Chargement...</div>';
+            apiCall('activity/recent')
+                .then(res => {
+                    const list = res.data || [];
+                    if (!list.length) {
+                        container.innerHTML = '<div class="text-gray-500 text-sm">Aucune activité récente</div>';
+                        return;
+                    }
+                    container.innerHTML = list.map(a => `
+                        <div class="flex items-center space-x-3">
+                            <div class="${a.bg} p-2 rounded-lg">
+                                <i class="${a.icon} ${a.color}"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm text-gray-800">${a.message}</p>
+                                <p class="text-xs text-gray-500">${formatDate(a.created_at)}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                })
+                .catch(() => {
+                    container.innerHTML = '<div class="text-red-500 text-sm">Erreur de chargement des activités</div>';
+                });
         }
 
         // Quick Actions
@@ -619,6 +785,180 @@
             container.innerHTML = table;
         }
 
+        // Eleves Management
+        function loadEleves() {
+            showLoading('elevesTable');
+            apiCall('eleves')
+                .then(response => {
+                    if (response.status === 'success') {
+                        displayElevesTable(response.data);
+                    } else {
+                        showError('Erreur lors du chargement des élèves');
+                    }
+                })
+                .catch(() => showError('Erreur de connexion'));
+        }
+
+        function displayElevesTable(eleves) {
+            const container = document.getElementById('elevesTable');
+            if (!eleves || eleves.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fas fa-users text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500">Aucun élève trouvé</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const table = `
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prénoms</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matricule</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Classe</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            ${eleves.map(eleve => `
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4">${eleve.nom ?? ''}</td>
+                                    <td class="px-6 py-4">${eleve.prenoms ?? ''}</td>
+                                    <td class="px-6 py-4">${eleve.matricule ?? ''}</td>
+                                    <td class="px-6 py-4">${eleve.classe_nom ?? eleve.classe_id ?? ''}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            container.innerHTML = table;
+        }
+
+        // Matieres Management
+        function loadMatieres() {
+            showLoading('matieresTable');
+            apiCall('matieres')
+                .then(response => {
+                    if (response.status === 'success') {
+                        displayMatieresTable(response.data);
+                    } else {
+                        showError('Erreur lors du chargement des matières');
+                    }
+                })
+                .catch(() => showError('Erreur de connexion'));
+        }
+
+        function displayMatieresTable(matieres) {
+            const container = document.getElementById('matieresTable');
+            if (!matieres || matieres.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fas fa-book text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500">Aucune matière trouvée</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const table = `
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matière</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coefficient</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            ${matieres.map(m => `
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4">${m.nom}</td>
+                                    <td class="px-6 py-4">${m.code ?? '-'}</td>
+                                    <td class="px-6 py-4">${m.coefficient ?? 1}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            container.innerHTML = table;
+        }
+
+        // Bulletins
+        function initBulletins() {
+            // Charger années
+            apiCall('annees')
+                .then(ans => {
+                    const anneeSel = document.getElementById('zipAnneeId');
+                    const annees = ans.data || [];
+                    anneeSel.innerHTML = annees.map(a => `<option value="${a.id}" ${a.active ? 'selected' : ''}>${a.libelle}</option>`).join('');
+                    if (annees.length) {
+                        loadZipClassesForYear(annees.find(a => a.active)?.id || annees[0].id);
+                    }
+                    anneeSel.onchange = () => loadZipClassesForYear(anneeSel.value);
+                })
+                .catch(() => showError('Erreur chargement années scolaires'));
+        }
+
+        function loadZipClassesForYear(anneeId) {
+            apiCall('classes')
+                .then(cls => {
+                    const list = document.getElementById('zipClassesList');
+                    const classes = (cls.data || []).filter(c => String(c.annee_scolaire_id) === String(anneeId));
+                    if (classes.length === 0) {
+                        list.innerHTML = '<div class="p-4 text-gray-500">Aucune classe pour cette année.</div>';
+                        return;
+                    }
+                    list.innerHTML = classes.map(c => `
+                        <div class="flex items-center justify-between p-4">
+                            <div>
+                                <p class="font-medium text-gray-800">${c.nom}</p>
+                                <p class="text-xs text-gray-500">Niveau: ${c.niveau || '-'} • Effectif max: ${c.effectif_max}</p>
+                            </div>
+                            <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg" onclick="downloadClasseZip(${c.id}, ${anneeId})">Télécharger</button>
+                        </div>
+                    `).join('');
+                })
+                .catch(() => showError('Erreur chargement classes'));
+        }
+
+        function downloadClasseZip(classeId, anneeId) {
+            const url = `${API_BASE}bulletins/classe/${classeId}?annee=${anneeId}`;
+            window.location.href = url;
+        }
+
+        // Reports
+        function loadReports() {
+            const container = document.getElementById('reportsContainer');
+            container.innerHTML = '';
+            apiCall('stats/dashboard')
+                .then(stats => {
+                    const data = stats.data || stats;
+                    container.innerHTML = `
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="p-6 bg-blue-50 rounded-lg">
+                                <p class="text-sm text-blue-700">Élèves</p>
+                                <p class="text-2xl font-bold text-blue-900">${data.total_eleves ?? 0}</p>
+                            </div>
+                            <div class="p-6 bg-green-50 rounded-lg">
+                                <p class="text-sm text-green-700">Classes</p>
+                                <p class="text-2xl font-bold text-green-900">${data.total_classes ?? 0}</p>
+                            </div>
+                            <div class="p-6 bg-purple-50 rounded-lg">
+                                <p class="text-sm text-purple-700">Bulletins (mois)</p>
+                                <p class="text-2xl font-bold text-purple-900">${data.bulletins_mois ?? 0}</p>
+                            </div>
+                        </div>
+                    `;
+                })
+                .catch(() => showError('Erreur chargement statistiques'));
+        }
+
         // Classe Modal Management
         function showClasseModal() {
             document.getElementById('classeModal').classList.remove('hidden');
@@ -653,6 +993,57 @@
                 console.error('Erreur:', error);
                 showError('Erreur de connexion');
             });
+        }
+
+        // Matiere Modal Management
+        function showMatiereModal() {
+            document.getElementById('matiereModal').classList.remove('hidden');
+            // Charger classes et années pour les selects
+            Promise.all([
+                apiCall('classes'),
+                apiCall('annees')
+            ]).then(([cls, ans]) => {
+                const classeSel = document.getElementById('matiereClasseId');
+                const anneeSel = document.getElementById('matiereAnneeId');
+                classeSel.innerHTML = (cls.data || []).map(c => `<option value="${c.id}">${c.nom}</option>`).join('');
+                anneeSel.innerHTML = (ans.data || []).map(a => `<option value="${a.id}" ${a.active ? 'selected' : ''}>${a.libelle}</option>`).join('');
+            }).catch(() => {
+                showError('Erreur de chargement des classes/années');
+            });
+        }
+        function hideMatiereModal() {
+            document.getElementById('matiereModal').classList.add('hidden');
+            document.getElementById('matiereForm').reset();
+        }
+        function handleMatiereSubmit(e) {
+            e.preventDefault();
+            const nom = document.getElementById('matiereNom').value.trim();
+            const classeId = parseInt(document.getElementById('matiereClasseId').value);
+            const anneeId = parseInt(document.getElementById('matiereAnneeId').value);
+            const coef = parseFloat(document.getElementById('matiereCoef').value) || 1.0;
+            if (!nom || !classeId || !anneeId) {
+                showError('Nom, Classe ID et Année ID sont requis');
+                return;
+            }
+            const payload = {
+                nom: nom,
+                // Le code est auto-généré côté serveur si absent
+                classe_id: classeId,
+                annee_scolaire_id: anneeId,
+                etablissement_id: currentUser?.etablissement_id || 1,
+                coefficient: coef
+            };
+            apiCall('matieres', 'POST', payload)
+                .then(res => {
+                    if (res.status === 'success') {
+                        showSuccess('Matière créée');
+                        hideMatiereModal();
+                        loadMatieres();
+                    } else {
+                        showError(res.message || 'Erreur lors de la création');
+                    }
+                })
+                .catch(() => showError('Erreur de connexion'));
         }
 
         // File Upload Management
@@ -709,6 +1100,66 @@
                 console.error('Erreur:', error);
                 showError('Erreur lors du téléchargement');
             });
+        }
+
+        // Import élèves (CSV) Management
+        function handleElevesImport(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const classeId = prompt('ID de la classe pour ces élèves ?');
+            if (!classeId) { showError('Classe ID requis'); return; }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('classe_id', classeId);
+            formData.append('etablissement_id', currentUser?.etablissement_id || 1);
+
+            fetch(API_BASE + 'eleves/import', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showSuccess(`Import terminé: ${data.data.imported} élèves`);
+                    loadEleves();
+                } else {
+                    showError(data.message || 'Erreur import élèves');
+                }
+            })
+            .catch(() => showError('Erreur import élèves'))
+            .finally(() => {
+                e.target.value = '';
+            });
+        }
+
+        function handleEleveSubmit(e) {
+            e.preventDefault();
+            const payload = {
+                nom: document.getElementById('eleveNom').value.trim(),
+                prenoms: document.getElementById('elevePrenoms').value.trim(),
+                sexe: document.getElementById('eleveSexe').value,
+                classe_id: parseInt(document.getElementById('eleveClasseId').value),
+                email: document.getElementById('eleveEmail').value.trim() || null,
+                telephone: document.getElementById('eleveTelephone').value.trim() || null,
+                etablissement_id: currentUser?.etablissement_id || 1
+            };
+            if (!payload.nom || !payload.prenoms || !payload.classe_id) {
+                showError('Nom, Prénoms et Classe ID sont requis');
+                return;
+            }
+            apiCall('eleves', 'POST', payload)
+                .then(res => {
+                    if (res.status === 'success') {
+                        showSuccess('Élève ajouté');
+                        document.getElementById('eleveForm').reset();
+                        loadEleves();
+                    } else {
+                        showError(res.message || 'Erreur lors de la création');
+                    }
+                })
+                .catch(() => showError('Erreur de connexion'));
         }
 
         function loadImportHistory() {
@@ -768,7 +1219,14 @@
             }
 
             return fetch(API_BASE + endpoint, options)
-                .then(response => response.json());
+                .then(async response => {
+                    const text = await response.text();
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        return { status: response.ok ? 'success' : 'error', message: text, raw: text };
+                    }
+                });
         }
 
         function showLoading(containerId) {

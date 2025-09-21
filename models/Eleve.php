@@ -50,5 +50,23 @@ class Eleve extends BaseModel {
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    public function findAllWithUser($etablissementId = null) {
+        $query = "SELECT e.*, u.nom, u.prenoms, u.matricule, c.nom as classe_nom 
+                  FROM " . $this->table . " e
+                  JOIN users u ON e.user_id = u.id
+                  LEFT JOIN classes c ON e.classe_id = c.id";
+        if ($etablissementId) {
+            $query .= " WHERE u.etablissement_id = :eid";
+        }
+        $query .= " ORDER BY u.nom, u.prenoms";
+
+        $stmt = $this->conn->prepare($query);
+        if ($etablissementId) {
+            $stmt->bindParam(':eid', $etablissementId, PDO::PARAM_INT);
+        }
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }
 ?>

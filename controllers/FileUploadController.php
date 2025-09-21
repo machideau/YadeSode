@@ -1,5 +1,9 @@
 <?php
-require_once 'vendor/autoload.php'; // Pour PHPSpreadsheet
+// Charger l'autoloader Composer si disponible (pour PHPSpreadsheet)
+$__autoloadPath = __DIR__ . '/../vendor/autoload.php';
+if (file_exists($__autoloadPath)) {
+    require_once $__autoloadPath; // Pour PHPSpreadsheet
+}
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
@@ -143,6 +147,11 @@ class FileUploadController extends ApiController {
     }
     
     private function convertExcelToCSV($excelPath) {
+        // Vérifier la disponibilité de PhpSpreadsheet
+        if (!class_exists('PhpOffice\\PhpSpreadsheet\\IOFactory')) {
+            error_log('PhpSpreadsheet non installé. Exécutez: composer require phpoffice/phpspreadsheet');
+            return false;
+        }
         try {
             $spreadsheet = IOFactory::load($excelPath);
             $worksheet = $spreadsheet->getActiveSheet();

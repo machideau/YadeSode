@@ -1,0 +1,15 @@
+RewriteEngine On
+
+# Autoriser CORS preflight à passer
+RewriteCond %{REQUEST_METHOD} =OPTIONS
+RewriteRule ^ - [R=200,L]
+
+# Servir directement les fichiers existants
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Réécrire tout vers index.php
+RewriteRule ^ index.php [QSA,L]
+
+

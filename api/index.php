@@ -9,33 +9,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Inclure tous les fichiers nécessaires
-require_once 'config/database.php';
-require_once 'models/BaseModel.php';
-require_once 'models/Etablissement.php';
-require_once 'models/Classe.php';
-require_once 'models/User.php';
-require_once 'models/Eleve.php';
-require_once 'models/Matiere.php';
-require_once 'models/Evaluation.php';
-require_once 'models/Note.php';
-require_once 'controllers/ApiController.php';
-require_once 'controllers/ClasseController.php';
-require_once 'controllers/EleveController.php';
-require_once 'controllers/MatiereController.php';
-require_once 'controllers/EvaluationController.php';
-require_once 'controllers/NoteController.php';
-require_once 'controllers/FileUploadController.php';
-require_once 'services/BulletinService.php';
-require_once 'controllers/BulletinController.php';
+require_once '../config/database.php';
+require_once '../models/BaseModel.php';
+require_once '../models/Etablissement.php';
+require_once '../models/Classe.php';
+require_once '../models/User.php';
+require_once '../models/Eleve.php';
+require_once '../models/Matiere.php';
+require_once '../models/Evaluation.php';
+require_once '../models/Note.php';
+require_once '../controllers/ApiController.php';
+require_once '../middleware/AuthMiddleware.php';
+require_once '../controllers/ClasseController.php';
+require_once '../controllers/EleveController.php';
+require_once '../controllers/MatiereController.php';
+require_once '../controllers/EvaluationController.php';
+require_once '../controllers/NoteController.php';
+require_once '../controllers/FileUploadController.php';
+require_once '../services/BulletinService.php';
+require_once '../controllers/BulletinController.php';
+require_once '../services/StatisticsService.php';
+require_once '../controllers/StatsController.php';
+require_once '../controllers/DevController.php';
+require_once '../controllers/AnneeController.php';
+require_once '../controllers/ActivityController.php';
 
 // Router simple
 $request_uri = $_SERVER['REQUEST_URI'];
 $path = parse_url($request_uri, PHP_URL_PATH);
-$path_parts = explode('/', trim($path, '/'));
+$all_parts = array_values(array_filter(explode('/', trim($path, '/'))));
 
-// Supprimer 'api' du chemin si présent
-if ($path_parts[0] === 'api') {
-    array_shift($path_parts);
+// Trouver le segment 'api' même si le projet est servi sous un sous-dossier (ex: /YadeSode/api/...)
+$apiIndex = array_search('api', $all_parts, true);
+if ($apiIndex !== false) {
+    $path_parts = array_slice($all_parts, $apiIndex + 1);
+} else {
+    $path_parts = $all_parts;
 }
 
 $controller = $path_parts[0] ?? '';
@@ -95,7 +104,11 @@ try {
                     break;
                     
                 case 'POST':
-                    $eleveController->create();
+                    if ($action === 'import') {
+                        $eleveController->importCSV();
+                    } else {
+                        $eleveController->create();
+                    }
                     break;
                     
                 case 'PUT':
@@ -138,6 +151,15 @@ try {
                     if ($id) {
                         $matiereController->delete($id);
                     }
+                    break;
+            }
+            break;
+
+        case 'annees':
+            $anneeController = new AnneeController();
+            switch ($_SERVER['REQUEST_METHOD']) {
+                case 'GET':
+                    $anneeController->getAll();
                     break;
             }
             break;
@@ -246,6 +268,56 @@ try {
                     if ($id && $action === 'download') {
                         // GET /bulletins/{bulletin_id}/download
                         $bulletinController->download($id);
+                    } elseif ($id === 'classe' && $action && isset($_GET['annee'])) {
+                        // GET /bulletins/classe/{classe_id}?annee={annee_id}
+                        $bulletinController->downloadClasseZip($action, $_GET['annee']);
+                    }
+                    break;
+            }
+            break;
+
+        case 'stats':
+            $statsController = new StatsController();
+
+            switch ($_SERVER['REQUEST_METHOD']) {
+                case 'GET':
+                    if ($id === 'dashboard') {
+                        // GET /stats/dashboard
+                        $statsController->getDashboardStats();
+                    } elseif ($id === 'classe' && $action && isset($_GET['periode'])) {
+                        // GET /stats/classe/{classe_id}?periode={periode_id}
+                        $statsController->getClasseStats($action, $_GET['periode']);
+                    } elseif ($id === 'matiere' && $action && $param && isset($_GET['periode'])) {
+                        // GET /stats/matiere/{matiere_id}/{classe_id}?periode={periode_id}
+                        $statsController->getMatiereStats($action, $param, $_GET['periode']);
+                    } else {
+                        http_response_code(400);
+                        echo json_encode(['status' => 'error', 'message' => 'Requête stats invalide']);
+                    }
+                    break;
+            }
+            break;
+
+        case 'activity':
+            $activityController = new ActivityController();
+            switch ($_SERVER['REQUEST_METHOD']) {
+                case 'GET':
+                    if ($id === 'recent') {
+                        $activityController->recent();
+                    }
+                    break;
+            }
+            break;
+
+        case 'dev':
+            $devController = new DevController();
+            switch ($_SERVER['REQUEST_METHOD']) {
+                case 'GET':
+                    if ($id === 'seed') {
+                        $devController->seed();
+                    } else {
+                        http_response_code(404);
+                        echo json_encode(['status' => 'error', 'message' => 'Endpoint dev non trouvé']);
                     }
                     break;
             }
